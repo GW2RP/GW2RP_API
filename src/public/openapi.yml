@@ -1,0 +1,65 @@
+openapi: 3.0.0
+
+info:
+  title: GuildWars 2 RolePlay ToolBox
+  description: A set of APIs to store events, activities and characters of roleplayers in Guild Wars 2 MMORPG.
+  version: 0.0.0
+  termsOfService: https://gw2rp-tools.ovh/terms/
+  contact:
+    name: GW2RP Tools Support
+    url: https://gw2rp-tools.ovh/support
+  license:
+    name: MIT
+
+tags:
+  - name: users
+  - name: locations
+
+paths:
+  /users:
+    get:
+      description: Get all users.
+      tags:
+        - users
+      summary: Get users.
+      operationId: getUsers
+    post:
+      tags:
+        - users
+  /users/{username}:
+    get:
+      description: Get a user by username.
+      summary: Get user.
+      operationId: getUser
+      tags:
+        - users
+    delete:
+      tags:
+        - users
+    put:
+      tags:
+        - users
+  
+  /locations:
+    get:
+      description: Get all locations.
+      summary: Get locations
+      operationId: getLocations
+      tags:
+        - locations
+    post:
+      tags:
+        - locations
+    delete:
+      tags:
+        - locations
+  /locations/{id}:
+    get:
+      tags:
+        - locations
+    put:
+      tags:
+        - locations
+    delete:
+      tags:
+        - locations

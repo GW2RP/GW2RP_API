@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Guild Wars 2 RP ToolBox API</title>
+    <link rel='stylesheet' type='text/css' href='https://unpkg.com/swagger-ui-dist@3.17.0/swagger-ui.css'/>
+    <link rel='icon' href='favicon.ico'/>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src='https://unpkg.com/swagger-ui-dist@3.17.0/swagger-ui-standalone-preset.js'></script>
+    <script src='https://unpkg.com/swagger-ui-dist@3.17.0/swagger-ui-bundle.js'></script>
+    <script>
+        window.onload = function() {
+            // Build a system
+            const ui = SwaggerUIBundle({
+                url: "/openapi.yml",
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+            })
+            window.ui = ui
+        }
+    </script>
+</body>
+</html>

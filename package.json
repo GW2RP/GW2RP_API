@@ -1,0 +1,36 @@
+{
+  "name": "gw2rp_api",
+  "version": "1.0.0",
+  "description": "Backend for the Guild Wars 2 Role Play Toolbox.",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "watch": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GW2RP/GW2RP_API.git"
+  },
+  "keywords": [
+    "API",
+    "RP",
+    "RolePlay",
+    "Guild Wars 2",
+    "GW2"
+  ],
+  "author": "Kevin 'Nakasar' Thizy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GW2RP/GW2RP_API/issues"
+  },
+  "homepage": "https://github.com/GW2RP/GW2RP_API#readme",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.2.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3"
+  }
+}
