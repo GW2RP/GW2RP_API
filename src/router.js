@@ -44,7 +44,7 @@ module.exports = () => {
         return res.status(404).json({
             success: "false",
             message: "URL not found."
-        });
+        });g
     });
 
     router.use((err, req, res, next) => {

@@ -16,7 +16,11 @@ module.exports = ({ auth }) => {
 
     router.delete('/', [auth.hasToken(), auth.isAdmin()], (req, res, next) => {
         return res.sendStatus(501);
-    })
+    });
+
+    router.post('/', auth.hasToken(), (req, res, next) => {
+        return res.sendStatus(501);
+    });
 
     return router;
 }

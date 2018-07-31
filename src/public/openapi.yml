@@ -16,6 +16,9 @@ tags:
   - name: locations
 
 paths:
+  /auth:
+    
+
   /users:
     get:
       description: Get all users.
