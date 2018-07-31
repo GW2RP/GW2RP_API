@@ -10,7 +10,7 @@ function signIn(username, password) {
         if (password !== "Password0") {
             return { message: "Password is not valid.", id: "BAD_CREDENTIALS" };
         }
-        return signToken({ user: "nakasar", admin: true });
+        return signToken({ username: "nakasar", admin: true });
     });
 }
 

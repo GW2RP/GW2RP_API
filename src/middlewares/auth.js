@@ -57,8 +57,37 @@ function hasToken() {
     }
 }
 
+function tokenData() {
+    return (req, res, next) => {
+        // Search for token...
+        let token;
+        let authorization = req.get("Authorization");
+        if (authorization) {
+            if (authorization.split("Bearer ").length === 2) {
+                token = authorization.split("Bearer ")[1];
+            } else {
+                return next();
+            }
+        } else {
+            token = req.body.token;
+        }
+        
+        if (!token) {
+            return next();
+        }
+
+        return userController.verifyToken(token).then(decoded => {
+            req.decoded = decoded;
+            return next();
+        }).catch(err => {
+            return next();
+        });
+    }
+}
+
 module.exports = {
     signIn,
     isAdmin,
-    hasToken
+    hasToken,
+    tokenData
 };
