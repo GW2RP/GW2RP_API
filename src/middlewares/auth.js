@@ -29,6 +29,16 @@ function isAdmin() {
 
 function hasToken() {
     return (req, res, next) => {
+        if (req.authError) {
+            res.status(403);
+            throw req.authError;
+        }
+        return next();
+    }
+}
+
+function tokenData() {
+    return (req, res, next) => {
         // Search for token...
         let token;
         let authorization = req.get("Authorization");
@@ -36,29 +46,31 @@ function hasToken() {
             if (authorization.split("Bearer ").length === 2) {
                 token = authorization.split("Bearer ")[1];
             } else {
-                res.status(403);
-                throw { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN" };
+                req.authError = { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN" };
+                return next();
             }
         } else {
             token = req.body.token;
         }
         
         if (!token) {
-            res.status(403);
-            throw { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN" };
+            req.authError = { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN" };
+            return next();
         }
 
         return userController.verifyToken(token).then(decoded => {
             req.decoded = decoded;
             return next();
         }).catch(err => {
-            return next(err);
-        })
+            req.authError = { message: err.message, id: "TOKEN_ERROR" };
+            return next();
+        });
     }
 }
 
 module.exports = {
     signIn,
     isAdmin,
-    hasToken
+    hasToken,
+    tokenData
 };
