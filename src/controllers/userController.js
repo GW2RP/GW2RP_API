@@ -30,8 +30,28 @@ function verifyToken(token) {
     });
 }
 
+function createOne(user) {
+    return Promise.reject();
+}
+
+function deleteOne(username) {
+    return Promise.reject();
+}
+
+function updateOne(username, user) {
+    return Promise.reject();
+}
+
+function deleteAll(username) {
+    return Promise.reject();
+}
+
 module.exports = {
     signIn,
     verifyToken,
-    signToken
+    signToken,
+    createOne,
+    deleteOne,
+    updateOne,
+    deleteAll
 }

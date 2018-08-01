@@ -14,11 +14,27 @@ module.exports = ({ auth }) => {
         });
     });
 
+    router.post('/search', (req, res, next) => {
+        return res.sendStatus(501);
+    });
+
     router.delete('/', [auth.hasToken(), auth.isAdmin()], (req, res, next) => {
         return res.sendStatus(501);
     });
 
     router.post('/', auth.hasToken(), (req, res, next) => {
+        return res.sendStatus(501);
+    });
+
+    router.get('/:rumorId', (req, res, next) => {
+        return res.sendStatus(501);
+    });
+
+    router.delete('/:rumorId', auth.hasToken(), (req, res, next) => {
+        return res.sendStatus(501);
+    });
+
+    router.put('/:rumorId', auth.hasToken(), (req, res, next) => {
         return res.sendStatus(501);
     });
 
