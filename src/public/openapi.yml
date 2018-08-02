@@ -12,11 +12,22 @@ info:
     name: MIT
 
 tags:
+  - name: authentication
+  - name: admin
   - name: users
   - name: locations
 
 paths:
   /auth:
+    post:
+      description: Authenticate and get a token.
+      tags:
+        - authentication
+  /signup:
+    post:
+      description: Create a new user account.
+      tags:
+        - authentication
     
 
   /users:
@@ -26,7 +37,14 @@ paths:
         - users
       summary: Get users.
       operationId: getUsers
+    delete:
+      description: Delete all users.
+      tags:
+        - users
+        - admin
+  /users/search:
     post:
+      description: Perform a complex search on users.
       tags:
         - users
   /users/{username}:
