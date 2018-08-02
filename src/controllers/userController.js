@@ -1,4 +1,9 @@
 const jwt = require("jsonwebtoken");
+const Joi = require('joi');
+const bcrypt = require('bcrypt');
+
+const User = require('../models/User');
+const UserValidtor = require('../validators/UserValidator');
 
 const secret = "26az1A1azd";
 
@@ -31,7 +36,27 @@ function verifyToken(token) {
 }
 
 function createOne(user) {
-    return Promise.reject();
+    return Promise.resolve().then(() => {
+        if (!user) {
+            throw { message: "No user to create.", id: "NO_USER" };
+        }
+
+        return Joi.validate(user, UserValidtor).then(validated => {
+            // Hash password.
+            const hash = bcrypt.hashSync(user.password, 8);
+            validated.password = hash;
+
+            console.log(validated);
+
+            return validated;
+        }).catch(error => {
+            throw {
+                message: "Given user is invalid.",
+                id: "INVALID_USER",
+                details: error.details ? error.details.map(e => e.message) : null
+            };
+        });
+    });
 }
 
 function deleteOne(username) {

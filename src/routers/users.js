@@ -3,6 +3,8 @@
 
 const express = require('express');
 
+const Users = require('../controllers/userController');
+
 module.exports = ({ auth }) => {
     const router = express.Router();
 
@@ -22,10 +24,6 @@ module.exports = ({ auth }) => {
         return res.sendStatus(501);
     });
 
-    router.post('/', auth.hasToken(), (req, res, next) => {
-        return res.sendStatus(501);
-    });
-
     router.get('/:username', (req, res, next) => {
         return res.sendStatus(501);
     });
@@ -36,6 +34,13 @@ module.exports = ({ auth }) => {
 
     router.put('/:username', auth.hasToken(), (req, res, next) => {
         return res.sendStatus(501);
+    });
+
+    router.use('*', (req, res, next) => {
+        return res.status(404).json({
+            success: "false",
+            message: "URL not found."
+        });
     });
 
     return router;

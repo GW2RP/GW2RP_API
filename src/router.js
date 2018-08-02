@@ -28,6 +28,8 @@ module.exports = () => {
 
     router.post('/auth', auth.signIn());
 
+    router.post('/signup', auth.signUp());
+
     router.use('/users', require('./routers/users')({ auth }));
 
     router.use('/characters', require('./routers/characters')({ auth }));
@@ -44,7 +46,7 @@ module.exports = () => {
         return res.status(404).json({
             success: "false",
             message: "URL not found."
-        });g
+        });
     });
 
     router.use((err, req, res, next) => {
@@ -54,7 +56,10 @@ module.exports = () => {
             res.status(500);
         }
 
-        return res.json({ message: err.id ? err.message : "Internal Server Error.", error: err.id || 500 });
+        return res.json({
+            success: false,
+            error: err
+        });
     });
 
     return router;

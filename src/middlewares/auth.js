@@ -1,4 +1,4 @@
-const userController = require('../controllers/userController');
+const Users = require('../controllers/userController');
 
 function signIn() {
     return (req, res, next) => {
@@ -10,11 +10,30 @@ function signIn() {
             throw { message: "Missing username or password in body", id: "INVALID_CREDENTIALS" };
         }
 
-        return userController.signIn(username, password).then(token => {
+        return Users.signIn(username, password).then(token => {
             return res.json({ success: true, token });
         }).catch(err => {
             return next(err);
         });
+    }
+}
+
+function signUp() {
+    return (req, res, next) => {
+        const user = req.body.user;
+        if (!user) {
+            return res.status(403).json({
+                success: false,
+                error: {
+                    message: "No user foud in body.",
+                    id: "MISSING_USER"
+                }
+            });
+        }
+        
+        Users.createOne(user).then(user => {
+            return res.sendStatus(501);
+        }).catch(next);
     }
 }
 
@@ -58,7 +77,7 @@ function tokenData() {
             return next();
         }
 
-        return userController.verifyToken(token).then(decoded => {
+        return Users.verifyToken(token).then(decoded => {
             req.decoded = decoded;
             return next();
         }).catch(err => {
@@ -70,6 +89,7 @@ function tokenData() {
 
 module.exports = {
     signIn,
+    signUp,
     isAdmin,
     hasToken,
     tokenData

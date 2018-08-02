@@ -38,5 +38,12 @@ module.exports = ({ auth }) => {
         return res.sendStatus(501);
     });
 
+    router.use('*', (req, res, next) => {
+        return res.status(404).json({
+            success: "false",
+            message: "URL not found."
+        });
+    });
+
     return router;
 }
