@@ -45,17 +45,27 @@ function createOne(user) {
             // Hash password.
             const hash = bcrypt.hashSync(user.password, 8);
             validated.password = hash;
-
-            console.log(validated);
-
             return validated;
         }).catch(error => {
+            // If password field is invalid, avoid sending the value back.
+            const details = error.details ? error.details.map(d => {
+                return {
+                    message: d.message.includes('password') ? "Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long." : d.message,
+                    id: d.path && d.path[0] ? d.path[0] : "GENERIC"
+                };
+            }) : null;
+
             throw {
                 message: "Given user is invalid.",
                 id: "INVALID_USER",
-                details: error.details ? error.details.map(e => e.message) : null
+                details
             };
         });
+    }).then(validated => {
+        const newUser = new User(validated);
+        console.log(newUser);
+
+        return newUser;
     });
 }
 
