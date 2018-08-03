@@ -71,21 +71,36 @@ function createOne(user) {
         return { username, register_date, status, gw2_account };
     }).catch(err => {
         if (err.name === "MongoError" && err.message.includes("duplicate")) {
-            throw { message: "Username already used.", id: "EXISTING_USER", status: 400 };
+            throw { message: "User already used (username, email and gw2_account must be unique).", id: "EXISTING_USER", status: 400 };
         }
 
         throw err;
-    })
+    });
 }
 
-function getAll(authorization) {
+function getAll(search, authorization) {
     return Promise.resolve().then(() => {
+        // Build query
+        const query = {};
+        if (search.text) {
+            query["$text"] = { $search: search.text };
+        }
+        if (search.username) {
+            query.username = search.username;
+        }
+        if (search.gw2_account) {
+            query.gw2_account = search.gw2_account;
+        }
+
+        console.log(query);
+
+        // Return result based of authorization.
         if (authorization.admin) {
-            return User.find({}, "-_id -__v -password");
+            return User.find(query, "-_id -__v -password");
         } else if (authorization.username) {
-            return User.find({}, "-_id -__v -password -last_connect -status -email");
+            return User.find(query, "-_id -__v -password -last_connect -status -email");
         } else {
-            return User.find({}, "-_id -__v -password -last_connect -register_date -status -email");
+            return User.find(query, "-_id -__v -password -last_connect -register_date -status -email");
         }
     });
 }
@@ -93,6 +108,16 @@ function getAll(authorization) {
 function deleteAll(username) {
     return User.deleteMany({}).then(result => {
         return result.n;
+    });
+}
+
+function getOne(username) {
+    return User.findOne({ username }, "-_id username gw2_account").then(user => {
+        if (!user) {
+            throw { message: "No user found.", id: "USER_NOT_FOUND", status: 404 };
+        }
+
+        return user;
     });
 }
 
@@ -117,6 +142,7 @@ module.exports = {
     createOne,
     getAll,
     deleteAll,
+    getOne,
     deleteOne,
     updateOne,
 }

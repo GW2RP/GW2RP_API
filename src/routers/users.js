@@ -9,7 +9,13 @@ module.exports = ({ auth }) => {
     const router = express.Router();
 
     router.get('/', (req, res, next) => {
-        return Users.getAll(req.authorization).then(users => {
+        // Build search query.
+        const username = req.query.username;
+        const gw2_account = req.query.gw2_account;
+        const text = req.query.q;
+        const search = { username, gw2_account, text };
+
+        return Users.getAll(search, req.authorization).then(users => {
             return res.json({
                 success: true,
                 message: "List of users.",
@@ -32,11 +38,16 @@ module.exports = ({ auth }) => {
     });
 
     router.get('/:username', (req, res, next) => {
-        return res.sendStatus(501);
+        return Users.getOne(req.params.username).then(user => {
+            return res.json({
+                success: true,
+                user
+            });
+        }).catch(next);
     });
 
     router.delete('/:username', auth.hasToken(), (req, res, next) => {
-        return Users.deleteOne(req.body.username).then(result => {
+        return Users.deleteOne(req.params.username).then(result => {
             return res.json({
                 success: true,
                 message: `User deleted.`
