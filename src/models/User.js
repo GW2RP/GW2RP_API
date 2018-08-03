@@ -20,8 +20,8 @@ const UserSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ["active", "awaiting", "banned"],
-        default: "unvalidated"
+        enum: ["active", "validation", "banned"],
+        default: "validation"
     },
     register_date: {
         type: Date,

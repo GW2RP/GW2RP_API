@@ -9,11 +9,13 @@ module.exports = ({ auth }) => {
     const router = express.Router();
 
     router.get('/', (req, res, next) => {
-        return res.json({
-            success: true,
-            message: "List of users.",
-            rumors: []
-        });
+        return Users.getAll(req.authorization).then(users => {
+            return res.json({
+                success: true,
+                message: "List of users.",
+                users
+            });
+        }).catch(next);
     });
 
     router.post('/search', (req, res, next) => {
@@ -21,7 +23,12 @@ module.exports = ({ auth }) => {
     });
 
     router.delete('/', [auth.hasToken(), auth.isAdmin()], (req, res, next) => {
-        return res.sendStatus(501);
+        return Users.deleteAll().then(amount => {
+            return res.json({
+                success: true,
+                message: `All users deleted (deleted: ${amount}).`
+            });
+        }).catch(next);
     });
 
     router.get('/:username', (req, res, next) => {
@@ -29,7 +36,12 @@ module.exports = ({ auth }) => {
     });
 
     router.delete('/:username', auth.hasToken(), (req, res, next) => {
-        return res.sendStatus(501);
+        return Users.deleteOne(req.body.username).then(result => {
+            return res.json({
+                success: true,
+                message: `User deleted.`
+            });
+        }).catch(next);
     });
 
     router.put('/:username', auth.hasToken(), (req, res, next) => {

@@ -32,7 +32,11 @@ function signUp() {
         }
         
         Users.createOne(user).then(user => {
-            return res.sendStatus(501);
+            return res.json({
+                success: true,
+                message: "User account created. Awaiting validation by email.",
+                user
+            })
         }).catch(next);
     }
 }
@@ -66,6 +70,7 @@ function tokenData() {
                 token = authorization.split("Bearer ")[1];
             } else {
                 req.authError = { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN" };
+                req.authorization = {};
                 return next();
             }
         } else {
@@ -74,14 +79,20 @@ function tokenData() {
         
         if (!token) {
             req.authError = { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN" };
+            req.authorization = {};
             return next();
         }
 
         return Users.verifyToken(token).then(decoded => {
             req.decoded = decoded;
+            req.authorization = {
+                username: decoded.username,
+                admin: decoded.admin
+            }
             return next();
         }).catch(err => {
             req.authError = { message: err.message, id: "TOKEN_ERROR" };
+            req.authorization = {};
             return next();
         });
     }

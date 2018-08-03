@@ -52,13 +52,18 @@ module.exports = () => {
     router.use((err, req, res, next) => {
         logger.error(err);
 
-        if (!res.status || res.status[0] == 2) {
-            res.status(500);
-        }
+        res.status(err.status || 500);
 
         return res.json({
             success: false,
-            error: err
+            error: err.status ? {
+                message: err.message,
+                details: err.details,
+                id: err.id
+            } : {
+                message: "An unkown error occured.",
+                id: "INTERNAL_SERVER_ERROR"
+            }
         });
     });
 

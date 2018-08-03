@@ -63,21 +63,50 @@ function createOne(user) {
         });
     }).then(validated => {
         const newUser = new User(validated);
-        console.log(newUser);
 
-        return newUser;
+        return newUser.save();
+    }).then(user => {
+        const { username, register_date, status, gw2_account } = user;
+
+        return { username, register_date, status, gw2_account };
+    }).catch(err => {
+        if (err.name === "MongoError" && err.message.includes("duplicate")) {
+            throw { message: "Username already used.", id: "EXISTING_USER", status: 400 };
+        }
+
+        throw err;
+    })
+}
+
+function getAll(authorization) {
+    return Promise.resolve().then(() => {
+        if (authorization.admin) {
+            return User.find({}, "-_id -__v -password");
+        } else if (authorization.username) {
+            return User.find({}, "-_id -__v -password -last_connect -status -email");
+        } else {
+            return User.find({}, "-_id -__v -password -last_connect -register_date -status -email");
+        }
+    });
+}
+
+function deleteAll(username) {
+    return User.deleteMany({}).then(result => {
+        return result.n;
     });
 }
 
 function deleteOne(username) {
-    return Promise.reject();
+    return User.deleteOne({ username }).then(result => {
+        if (result.n === 1) {
+            return true;
+        } else {
+            throw { message: "No user found.", id: "USER_NOT_FOUND", status: 404 };
+        }
+    });
 }
 
 function updateOne(username, user) {
-    return Promise.reject();
-}
-
-function deleteAll(username) {
     return Promise.reject();
 }
 
@@ -86,7 +115,8 @@ module.exports = {
     verifyToken,
     signToken,
     createOne,
+    getAll,
+    deleteAll,
     deleteOne,
     updateOne,
-    deleteAll
 }
