@@ -9,14 +9,18 @@ const secret = "26az1A1azd";
 
 function signIn(username, password) {
     return Promise.resolve().then(() => {
-        if (username.toLowerCase() !== "nakasar") {
-            return { message: "There is no user with this username.", id: "NO_USER" };
+        return User.findOne({ username });
+    }).then(user => {
+        if (!user) {
+            return { message: "There is no user with this username.", id: "NO_USER", status: 403 };
         }
-        if (password !== "Password0") {
-            return { message: "Password is not valid.", id: "BAD_CREDENTIALS" };
+
+        if (!bcrypt.compareSync(password, user.password)) {
+            return { message: "Wrong credential.", id: "WRONG_CREDENTIALS", status: 403 };
         }
-        return signToken({ username: "nakasar", admin: true });
-    });
+
+        return signToken({ username, admin: user.admin });
+    })
 }
 
 function signToken(payload) {
@@ -42,9 +46,23 @@ function createOne(user) {
         }
 
         return Joi.validate(user, UserValidtor).then(validated => {
+            if (!validated.password) {
+                throw {
+                    status: 400,
+                    message: "Given user is invalid.",
+                    id: "INVALID_USER",
+                    details: [ {
+                        message: "Missing password.",
+                        id: "MISSING_PASSWORD",
+                        path: ["password"]
+                    }]
+                };
+            }
+
             // Hash password.
             const hash = bcrypt.hashSync(user.password, 8);
             validated.password = hash;
+
             return validated;
         }).catch(error => {
             // If password field is invalid, avoid sending the value back.
@@ -56,18 +74,23 @@ function createOne(user) {
             }) : null;
 
             throw {
+                status: 400,
                 message: "Given user is invalid.",
                 id: "INVALID_USER",
                 details
             };
         });
     }).then(validated => {
+        if (validated.username === process.env.ADMIN_USER) {
+            validated.admin = true;
+        }
+        
         const newUser = new User(validated);
 
         return newUser.save();
     }).then(user => {
         const { username, register_date, status, gw2_account } = user;
-
+        
         return { username, register_date, status, gw2_account };
     }).catch(err => {
         if (err.name === "MongoError" && err.message.includes("duplicate")) {
@@ -91,8 +114,6 @@ function getAll(search, authorization) {
         if (search.gw2_account) {
             query.gw2_account = search.gw2_account;
         }
-
-        console.log(query);
 
         // Return result based of authorization.
         if (authorization.admin) {
@@ -131,8 +152,72 @@ function deleteOne(username) {
     });
 }
 
-function updateOne(username, user) {
-    return Promise.reject();
+function updateOne(username, user, oldPassword) {
+    return Promise.resolve().then(() => {
+        if (!user) {
+            throw { message: "No user data to update.", id: "NO_USER_DATA", status: 400 };
+        }
+
+        return User.findOne({ username });
+    }).then(found => {
+        if (!found) {
+            throw { message: "No user to update.", id: "NO_USER", status: 404 };
+        }
+
+        return Joi.validate(user, UserValidtor).then(validated => {
+            if (validated.password || validated.email) {
+                // Check old password.
+                if (!oldPassword) {
+                    throw { message: "Updating password or email requires password_confirmation in body.", id: "PASSWORD_REQUIRED", status: 403 };
+                }
+
+                if (!bcrypt.compareSync(oldPassword, found.password)) {
+                    throw { message: "old_password is wrong.", id: "WRONG_CREDENTIALS", status: 403 };
+                }
+            }
+
+            if (validated.password) {
+                // Hash password.
+                const hash = bcrypt.hashSync(user.password, 8);
+                validated.password = hash;
+            }
+
+            return validated;
+        }).catch(error => {
+            // If password field is invalid, avoid sending the value back.
+            const details = error.details ? error.details.map(d => {
+                return {
+                    message: d.message.includes('password') ? "Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long." : d.message,
+                    id: d.path && d.path[0] ? d.path[0] : "GENERIC"
+                };
+            }) : null;
+
+            throw {
+                status: 400,
+                message: error.id ? error.message : "Given user is invalid.",
+                id: error.id || "INVALID_USER",
+                details
+            };
+        }).then(validated => {
+            
+            found.username = validated.username;
+            found.email = validated.email;
+            found.password = validated.password;
+            found.gw2_account = validated.gw2_account;
+
+            return found.save();
+        })
+    }).then(user => {
+        const { username, register_date, status, gw2_account, email } = user;
+
+        return { username, register_date, status, gw2_account, email };
+    }).catch(err => {
+        if (err.name === "MongoError" && err.message.includes("duplicate")) {
+            throw { message: "User already used (username, email and gw2_account must be unique).", id: "EXISTING_USER", status: 400 };
+        }
+
+        throw err;
+    });
 }
 
 module.exports = {

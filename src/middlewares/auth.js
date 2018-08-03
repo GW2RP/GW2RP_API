@@ -36,7 +36,7 @@ function signUp() {
                 success: true,
                 message: "User account created. Awaiting validation by email.",
                 user
-            })
+            });
         }).catch(next);
     }
 }
@@ -44,7 +44,7 @@ function signUp() {
 function isAdmin() {
     return (req, res, next) => {
         if (!req.decoded || !req.decoded.admin) {
-            throw { message: "Admin privilege required.", id: "NOT_ADMIN" };
+            throw { message: "Admin privilege required.", id: "USER_NOT_ADMIN", status: 403 };
         }
         return next();
     }
@@ -53,7 +53,6 @@ function isAdmin() {
 function hasToken() {
     return (req, res, next) => {
         if (req.authError) {
-            res.status(403);
             throw req.authError;
         }
         return next();
@@ -69,7 +68,7 @@ function tokenData() {
             if (authorization.split("Bearer ").length === 2) {
                 token = authorization.split("Bearer ")[1];
             } else {
-                req.authError = { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN" };
+                req.authError = { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN", status: 403 };
                 req.authorization = {};
                 return next();
             }
@@ -78,7 +77,7 @@ function tokenData() {
         }
         
         if (!token) {
-            req.authError = { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN" };
+            req.authError = { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN", status: 403 };
             req.authorization = {};
             return next();
         }
@@ -91,7 +90,7 @@ function tokenData() {
             }
             return next();
         }).catch(err => {
-            req.authError = { message: err.message, id: "TOKEN_ERROR" };
+            req.authError = { message: err.message, id: "TOKEN_ERROR", status: 403 };
             req.authorization = {};
             return next();
         });

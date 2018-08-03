@@ -25,7 +25,19 @@ module.exports = ({ auth }) => {
     });
 
     router.post('/search', (req, res, next) => {
-        return res.sendStatus(501);
+        // Build search query.
+        const username = req.body.username;
+        const gw2_account = req.body.gw2_account;
+        const text = req.body.q;
+        const search = { username, gw2_account, text };
+
+        return Users.getAll(search, req.authorization).then(users => {
+            return res.json({
+                success: true,
+                message: "List of users.",
+                users
+            });
+        }).catch(next);
     });
 
     router.delete('/', [auth.hasToken(), auth.isAdmin()], (req, res, next) => {
@@ -56,7 +68,17 @@ module.exports = ({ auth }) => {
     });
 
     router.put('/:username', auth.hasToken(), (req, res, next) => {
-        return res.sendStatus(501);
+        return Users.updateOne(
+            req.params.username,
+            req.body.user,
+            req.body.old_password
+        ).then(user => {
+            return res.json({
+                success: true,
+                message: "User updated",
+                user
+            })
+        }).catch(next);
     });
 
     router.use('*', (req, res, next) => {
