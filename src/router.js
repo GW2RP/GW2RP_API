@@ -30,6 +30,8 @@ module.exports = () => {
 
     router.post('/signup', auth.signUp());
 
+    router.use('/validate', require('./routers/validate')({ auth }));
+
     router.use('/users', require('./routers/users')({ auth }));
 
     router.use('/characters', require('./routers/characters')({ auth }));
