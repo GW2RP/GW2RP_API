@@ -59,7 +59,7 @@ module.exports = ({ auth }) => {
     });
 
     router.delete('/:username', auth.hasToken(), (req, res, next) => {
-        return Users.deleteOne(req.params.username).then(result => {
+        return Users.deleteOne(req.params.username, req.authorization).then(result => {
             return res.json({
                 success: true,
                 message: `User deleted.`

@@ -6,8 +6,7 @@ function signIn() {
         const password = req.body.password;
 
         if (!username || !password) {
-            res.status(400);
-            throw { message: "Missing username or password in body", id: "INVALID_CREDENTIALS" };
+            throw { message: "Missing username or password in body", id: "INVALID_CREDENTIALS", status: 400 };
         }
 
         return Users.signIn(username, password).then(token => {
@@ -25,6 +24,7 @@ function signUp() {
             return res.status(403).json({
                 success: false,
                 error: {
+                    status: 400,
                     message: "No user foud in body.",
                     id: "MISSING_USER"
                 }

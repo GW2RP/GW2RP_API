@@ -81,7 +81,7 @@ function createOne(user) {
             };
         });
     }).then(validated => {
-        if (validated.username === process.env.ADMIN_USER) {
+        if (process.env.ADMIN_USER && validated.username.toLowerCase() === process.env.ADMIN_USER.toLowerCase()) {
             validated.admin = true;
         }
         
@@ -118,10 +118,8 @@ function getAll(search, authorization) {
         // Return result based of authorization.
         if (authorization.admin) {
             return User.find(query, "-_id -__v -password");
-        } else if (authorization.username) {
-            return User.find(query, "-_id -__v -password -last_connect -status -email");
         } else {
-            return User.find(query, "-_id -__v -password -last_connect -register_date -status -email");
+            return User.find(query, "-_id username gw2_account");
         }
     });
 }
@@ -142,13 +140,20 @@ function getOne(username) {
     });
 }
 
-function deleteOne(username) {
-    return User.deleteOne({ username }).then(result => {
-        if (result.n === 1) {
-            return true;
-        } else {
-            throw { message: "No user found.", id: "USER_NOT_FOUND", status: 404 };
+function deleteOne(username, authorization) {
+    return Promise.resolve().then(() => {
+        console.log(authorization);
+        if (!authorization || !(authorization.admin || (authorization.username.toLowerCase() === username.toLowerCase()))) {
+            throw { message: "You cannot delete another acount than yours.", id: "NOT_YOUR_ACCOUNT", status: "403" };
         }
+
+        return User.deleteOne({ username }).then(result => {
+            if (result.n === 1) {
+                return true;
+            } else {
+                throw { message: "No user found.", id: "USER_NOT_FOUND", status: 404 };
+            }
+        });
     });
 }
 
