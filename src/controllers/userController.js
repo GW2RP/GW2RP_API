@@ -406,7 +406,9 @@ function validateEmail(username, token) {
         user.validation_token = "";
         user.status = "active";
 
-        return user.save().then(user => { success: true });
+        return user.save().then(user => { 
+            return { success: true }
+        });
     });
 }
 

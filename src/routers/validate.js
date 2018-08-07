@@ -26,6 +26,7 @@ module.exports = ({ auth }) => {
                 return res.sendFile(path.join(__dirname, '../public/validation/validationfailed.html'));
             }
         }).catch(err => {
+            console.log(err);
             return res.sendFile(path.join(__dirname, '../public/validation/validationerror.html'));
         });
     });
