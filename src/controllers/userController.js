@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const bcrypt = require('bcrypt');
 
@@ -7,7 +7,7 @@ const UserValidator = require('../validators/UserValidator');
 
 const mailer = require('../utils/mailer');
 
-const secret = "26az1A1azd";
+const secret = '26az1A1azd';
 
 function signIn(username, password) {
     return Promise.resolve().then(() => {
@@ -17,16 +17,16 @@ function signIn(username, password) {
     }).then(user => {
         if (!user) {
             return {
-                message: "There is no user with this username.",
-                id: "NO_USER",
+                message: 'There is no user with this username.',
+                id: 'NO_USER',
                 status: 403
             };
         }
 
         if (!bcrypt.compareSync(password, user.password)) {
             return {
-                message: "Wrong credential.",
-                id: "WRONG_CREDENTIALS",
+                message: 'Wrong credential.',
+                id: 'WRONG_CREDENTIALS',
                 status: 403
             };
         }
@@ -35,7 +35,7 @@ function signIn(username, password) {
             username,
             admin: user.admin
         });
-    })
+    });
 }
 
 function signToken(payload) {
@@ -45,12 +45,12 @@ function signToken(payload) {
 }
 
 function verifyToken(token) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
                 throw {
-                    message: "Invalid token provided.",
-                    id: "INVALID_TOKEN"
+                    message: 'Invalid token provided.',
+                    id: 'INVALID_TOKEN'
                 };
             }
 
@@ -63,8 +63,8 @@ function createOne(user) {
     return Promise.resolve().then(() => {
         if (!user) {
             throw {
-                message: "No user to create.",
-                id: "NO_USER"
+                message: 'No user to create.',
+                id: 'NO_USER'
             };
         }
 
@@ -72,12 +72,12 @@ function createOne(user) {
             if (!validated.password) {
                 throw {
                     status: 400,
-                    message: "Given user is invalid.",
-                    id: "INVALID_USER",
+                    message: 'Given user is invalid.',
+                    id: 'INVALID_USER',
                     details: [{
-                        message: "Missing password.",
-                        id: "MISSING_PASSWORD",
-                        path: ["password"]
+                        message: 'Missing password.',
+                        id: 'MISSING_PASSWORD',
+                        path: ['password']
                     }]
                 };
             }
@@ -91,15 +91,15 @@ function createOne(user) {
             // If password field is invalid, avoid sending the value back.
             const details = error.details ? error.details.map(d => {
                 return {
-                    message: d.message.includes('password') ? "Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long." : d.message,
-                    id: d.path && d.path[0] ? d.path[0] : "GENERIC"
+                    message: d.message.includes('password') ? 'Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long.' : d.message,
+                    id: d.path && d.path[0] ? d.path[0] : 'GENERIC'
                 };
             }) : null;
 
             throw {
                 status: 400,
-                message: "Given user is invalid.",
-                id: "INVALID_USER",
+                message: 'Given user is invalid.',
+                id: 'INVALID_USER',
                 details
             };
         });
@@ -131,10 +131,10 @@ function createOne(user) {
             gw2_account
         };
     }).catch(err => {
-        if (err.name === "MongoError" && err.message.includes("duplicate")) {
+        if (err.name === 'MongoError' && err.message.includes('duplicate')) {
             throw {
-                message: "User already used (username, email and gw2_account must be unique).",
-                id: "EXISTING_USER",
+                message: 'User already used (username, email and gw2_account must be unique).',
+                id: 'EXISTING_USER',
                 status: 400
             };
         }
@@ -148,7 +148,7 @@ function getAll(search, authorization) {
         // Build query
         const query = {};
         if (search.text) {
-            query["$text"] = {
+            query['$text'] = {
                 $search: search.text
             };
         }
@@ -161,14 +161,14 @@ function getAll(search, authorization) {
 
         // Return result based of authorization.
         if (authorization.admin) {
-            return User.find(query, "-_id -__v -password");
+            return User.find(query, '-_id -__v -password');
         } else {
-            return User.find(query, "-_id username gw2_account");
+            return User.find(query, '-_id username gw2_account');
         }
     });
 }
 
-function deleteAll(username) {
+function deleteAll() {
     return User.deleteMany({}).then(result => {
         return result.n;
     });
@@ -177,11 +177,11 @@ function deleteAll(username) {
 function getOne(username) {
     return User.findOne({
         username
-    }, "-_id username gw2_account").then(user => {
+    }, '-_id username gw2_account').then(user => {
         if (!user) {
             throw {
-                message: "No user found.",
-                id: "USER_NOT_FOUND",
+                message: 'No user found.',
+                id: 'USER_NOT_FOUND',
                 status: 404
             };
         }
@@ -195,9 +195,9 @@ function deleteOne(username, authorization) {
         console.log(authorization);
         if (!authorization || !(authorization.admin || (authorization.username.toLowerCase() === username.toLowerCase()))) {
             throw {
-                message: "You cannot delete another acount than yours.",
-                id: "NOT_YOUR_ACCOUNT",
-                status: "403"
+                message: 'You cannot delete another acount than yours.',
+                id: 'NOT_YOUR_ACCOUNT',
+                status: '403'
             };
         }
 
@@ -208,8 +208,8 @@ function deleteOne(username, authorization) {
                 return true;
             } else {
                 throw {
-                    message: "No user found.",
-                    id: "USER_NOT_FOUND",
+                    message: 'No user found.',
+                    id: 'USER_NOT_FOUND',
                     status: 404
                 };
             }
@@ -221,8 +221,8 @@ function updateOne(username, user, oldPassword) {
     return Promise.resolve().then(() => {
         if (!user) {
             throw {
-                message: "No user data to update.",
-                id: "NO_USER_DATA",
+                message: 'No user data to update.',
+                id: 'NO_USER_DATA',
                 status: 400
             };
         }
@@ -233,8 +233,8 @@ function updateOne(username, user, oldPassword) {
     }).then(found => {
         if (!found) {
             throw {
-                message: "No user to update.",
-                id: "NO_USER",
+                message: 'No user to update.',
+                id: 'NO_USER',
                 status: 404
             };
         }
@@ -244,16 +244,16 @@ function updateOne(username, user, oldPassword) {
                 // Check old password.
                 if (!oldPassword) {
                     throw {
-                        message: "Updating password or email requires password_confirmation in body.",
-                        id: "PASSWORD_REQUIRED",
+                        message: 'Updating password or email requires password_confirmation in body.',
+                        id: 'PASSWORD_REQUIRED',
                         status: 403
                     };
                 }
 
                 if (!bcrypt.compareSync(oldPassword, found.password)) {
                     throw {
-                        message: "old_password is wrong.",
-                        id: "WRONG_CREDENTIALS",
+                        message: 'old_password is wrong.',
+                        id: 'WRONG_CREDENTIALS',
                         status: 403
                     };
                 }
@@ -270,15 +270,15 @@ function updateOne(username, user, oldPassword) {
             // If password field is invalid, avoid sending the value back.
             const details = error.details ? error.details.map(d => {
                 return {
-                    message: d.message.includes('password') ? "Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long." : d.message,
-                    id: d.path && d.path[0] ? d.path[0] : "GENERIC"
+                    message: d.message.includes('password') ? 'Field password is required. Must contain at least a letter, a capital letter, a digit, a special character, and be a least 8 characters long.' : d.message,
+                    id: d.path && d.path[0] ? d.path[0] : 'GENERIC'
                 };
             }) : null;
 
             throw {
                 status: 400,
-                message: error.id ? error.message : "Given user is invalid.",
-                id: error.id || "INVALID_USER",
+                message: error.id ? error.message : 'Given user is invalid.',
+                id: error.id || 'INVALID_USER',
                 details
             };
         }).then(validated => {
@@ -289,7 +289,7 @@ function updateOne(username, user, oldPassword) {
             found.gw2_account = validated.gw2_account;
 
             return found.save();
-        })
+        });
     }).then(user => {
         const {
             username,
@@ -307,10 +307,10 @@ function updateOne(username, user, oldPassword) {
             email
         };
     }).catch(err => {
-        if (err.name === "MongoError" && err.message.includes("duplicate")) {
+        if (err.name === 'MongoError' && err.message.includes('duplicate')) {
             throw {
-                message: "User already used (username, email and gw2_account must be unique).",
-                id: "EXISTING_USER",
+                message: 'User already used (username, email and gw2_account must be unique).',
+                id: 'EXISTING_USER',
                 status: 400
             };
         }
@@ -325,23 +325,23 @@ function sendValidationMail(username) {
     }).then(user => {
         if (!user) {
             throw {
-                message: "No user found.",
-                id: "USER_NOT_FOUD",
+                message: 'No user found.',
+                id: 'USER_NOT_FOUD',
                 status: 404
             };
         }
 
-        if (user.status === "active") {
+        if (user.status === 'active') {
             throw {
-                message: "User account is already validated.",
-                id: "USER_ALREADY_ACTIVE",
+                message: 'User account is already validated.',
+                id: 'USER_ALREADY_ACTIVE',
                 status: 403
             };
         }
-        if (user.status === "banned") {
+        if (user.status === 'banned') {
             throw {
-                message: "User account is banned.",
-                id: "USER_BANNED",
+                message: 'User account is banned.',
+                id: 'USER_BANNED',
                 status: 403
             };
         }
@@ -374,40 +374,42 @@ function validateEmail(username, token) {
         if (!user) {
             return {
                 success: false,
-                message: "No user found.",
-                id: "USER_NOT_FOUND"
+                message: 'No user found.',
+                id: 'USER_NOT_FOUND'
             };
         }
 
         if (user.validation_token !== token) {
             return {
                 success: false,
-                message: "Token is invalid.",
-                id: "INVALID_TOKEN"
+                message: 'Token is invalid.',
+                id: 'INVALID_TOKEN'
             };
         }
 
-        if (user.status === "active") {
+        if (user.status === 'active') {
             return {
                 success: false,
-                message: "Account already active.",
-                id: "USER_ALREADY_ACTIVE"
+                message: 'Account already active.',
+                id: 'USER_ALREADY_ACTIVE'
             };
         }
 
-        if (user.status === "banned") {
+        if (user.status === 'banned') {
             return {
                 success: false,
-                message: "User account is banned.",
-                id: "USER_BANNED"
+                message: 'User account is banned.',
+                id: 'USER_BANNED'
             };
         }
 
-        user.validation_token = "";
-        user.status = "active";
+        user.validation_token = '';
+        user.status = 'active';
 
-        return user.save().then(user => { 
-            return { success: true }
+        return user.save().then(() => {
+            return {
+                success: true
+            };
         });
     });
 }
@@ -424,4 +426,4 @@ module.exports = {
     updateOne,
     sendValidationMail,
     validateEmail,
-}
+};
