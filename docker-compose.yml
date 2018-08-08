@@ -1,0 +1,30 @@
+version: "2"
+
+services:
+   db:
+     image: mongodb
+     volumes:
+       - db_data:/data
+     restart: always
+     container_name: gw2rp_db
+
+   wordpress:
+     depends_on:
+       - db
+     build: .
+     expose:
+       - 80
+     restart: always
+     environment:
+       VIRTUAL_HOST: api.gw2rp-tools.ovh
+       MONGO_URL: mongodb://db:27017/gw2rp
+       PORT: 80
+     container_name: gw2rp_api
+
+volumes:
+    db_data:
+
+networks:
+  default:
+    external:
+      name: nginx-proxy

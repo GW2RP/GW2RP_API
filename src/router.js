@@ -4,7 +4,7 @@
 const express = require('express');
 const path = require('path');
 
-const logger = require('./utils/logger')("Router");
+const logger = require('./utils/logger')('Router');
 
 const auth = require('./middlewares/auth');
 
@@ -14,7 +14,7 @@ module.exports = () => {
     router.use(auth.tokenData());
 
     router.use((req, res, next) => {
-        logger.log(`${req.decoded ? `For user '${req.decoded.username}'` : ""} ${req.method} ${req.originalUrl}.`)
+        logger.log(`${req.decoded ? `For user '${req.decoded.username}'` : ''} ${req.method} ${req.originalUrl}.`);
         return next();
     });
 
@@ -44,12 +44,7 @@ module.exports = () => {
 
     router.use('/events', require('./routers/events')({ auth }));
 
-    router.get('*', (req, res, next) => {
-        return res.status(404).json({
-            success: "false",
-            message: "URL not found."
-        });
-    });
+    router.use('/', require('./routers/others')({ auth }));
 
     router.use((err, req, res, next) => {
         logger.error(err);
@@ -63,11 +58,11 @@ module.exports = () => {
                 details: err.details,
                 id: err.id
             } : {
-                message: "An unkown error occured.",
-                id: "INTERNAL_SERVER_ERROR"
+                message: 'An unkown error occured.',
+                id: 'INTERNAL_SERVER_ERROR'
             }
         });
     });
 
     return router;
-}
+};

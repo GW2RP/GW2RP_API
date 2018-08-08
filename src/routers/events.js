@@ -18,7 +18,7 @@ module.exports = ({ auth }) => {
     router.get('/', (req, res, next) => {
         return res.json({
             success: true,
-            message: "List of events.",
+            message: 'List of events.',
             rumors: []
         });
     });
@@ -53,10 +53,10 @@ module.exports = ({ auth }) => {
 
     router.use('*', (req, res, next) => {
         return res.status(404).json({
-            success: "false",
-            message: "URL not found."
+            success: 'false',
+            message: 'URL not found.'
         });
     });
 
     return router;
-}
+};

@@ -24,14 +24,14 @@ const RumorSchema = new Schema({
         x: {
             _id: false,
             type: Number,
-            required: "Location coordinates shall have x value."
+            required: 'Location coordinates shall have x value.'
         },
         y: {
             _id: false,
             type: Number,
-            required: "Location coordinates shall have y value."
+            required: 'Location coordinates shall have y value.'
         },
-        required: "Location shall have coordinates."
+        required: 'Location shall have coordinates.'
     },
     description: {
         type: String,
@@ -39,7 +39,7 @@ const RumorSchema = new Schema({
     },
     contact: {
         type: String,
-        required: "Location shall have a contact."
+        required: 'Location shall have a contact.'
     },
     site: {
         type: String

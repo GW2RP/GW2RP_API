@@ -19,8 +19,8 @@ const UserSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ["active", "validation", "banned"],
-        default: "validation"
+        enum: ['active', 'validation', 'banned'],
+        default: 'validation'
     },
     register_date: {
         type: Date,
@@ -44,6 +44,6 @@ const UserSchema = new Schema({
     }
 });
 
-UserSchema.index({ username: "text" }, { unique: true });
+UserSchema.index({ username: 'text' }, { unique: true });
 
 module.exports = mongoose.model('User', UserSchema);

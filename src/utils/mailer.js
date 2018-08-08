@@ -17,7 +17,7 @@ function sendMail(options) {
                 console.error(error);
                 return reject(error);
             }
-            console.info("Mail sent.");
+            console.info('Mail sent.');
             return resolve();
         });
     });
@@ -25,4 +25,4 @@ function sendMail(options) {
 
 module.exports = {
     sendMail
-}
+};

@@ -18,7 +18,7 @@ module.exports = ({ auth }) => {
         return Users.getAll(search, req.authorization).then(users => {
             return res.json({
                 success: true,
-                message: "List of users.",
+                message: 'List of users.',
                 users
             });
         }).catch(next);
@@ -34,7 +34,7 @@ module.exports = ({ auth }) => {
         return Users.getAll(search, req.authorization).then(users => {
             return res.json({
                 success: true,
-                message: "List of users.",
+                message: 'List of users.',
                 users
             });
         }).catch(next);
@@ -62,7 +62,7 @@ module.exports = ({ auth }) => {
         return Users.deleteOne(req.params.username, req.authorization).then(result => {
             return res.json({
                 success: true,
-                message: `User deleted.`
+                message: 'User deleted.'
             });
         }).catch(next);
     });
@@ -75,18 +75,18 @@ module.exports = ({ auth }) => {
         ).then(user => {
             return res.json({
                 success: true,
-                message: "User updated",
+                message: 'User updated',
                 user
-            })
+            });
         }).catch(next);
     });
 
     router.use('*', (req, res, next) => {
         return res.status(404).json({
-            success: "false",
-            message: "URL not found."
+            success: 'false',
+            message: 'URL not found.'
         });
     });
 
     return router;
-}
+};

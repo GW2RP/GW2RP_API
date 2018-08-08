@@ -13,7 +13,7 @@ module.exports = ({ auth }) => {
         Users.sendValidationMail(req.params.username).then(() => {
             return res.json({
                 success: true,
-                message: "Validation mail sent, please check your email."
+                message: 'Validation mail sent, please check your email.'
             });
         }).catch(next);
     });
@@ -32,4 +32,4 @@ module.exports = ({ auth }) => {
     });
 
     return router;
-}
+};

@@ -6,7 +6,7 @@ function signIn() {
         const password = req.body.password;
 
         if (!username || !password) {
-            throw { message: "Missing username or password in body", id: "INVALID_CREDENTIALS", status: 400 };
+            throw { message: 'Missing username or password in body', id: 'INVALID_CREDENTIALS', status: 400 };
         }
 
         return Users.signIn(username, password).then(token => {
@@ -14,7 +14,7 @@ function signIn() {
         }).catch(err => {
             return next(err);
         });
-    }
+    };
 }
 
 function signUp() {
@@ -25,8 +25,8 @@ function signUp() {
                 success: false,
                 error: {
                     status: 400,
-                    message: "No user foud in body.",
-                    id: "MISSING_USER"
+                    message: 'No user foud in body.',
+                    id: 'MISSING_USER'
                 }
             });
         }
@@ -34,20 +34,20 @@ function signUp() {
         Users.createOne(user).then(user => {
             return res.json({
                 success: true,
-                message: "User account created. Awaiting validation by email.",
+                message: 'User account created. Awaiting validation by email.',
                 user
             });
         }).catch(next);
-    }
+    };
 }
 
 function isAdmin() {
     return (req, res, next) => {
         if (!req.decoded || !req.decoded.admin) {
-            throw { message: "Admin privilege required.", id: "USER_NOT_ADMIN", status: 403 };
+            throw { message: 'Admin privilege required.', id: 'USER_NOT_ADMIN', status: 403 };
         }
         return next();
-    }
+    };
 }
 
 function hasToken() {
@@ -56,19 +56,19 @@ function hasToken() {
             throw req.authError;
         }
         return next();
-    }
+    };
 }
 
 function tokenData() {
     return (req, res, next) => {
         // Search for token...
         let token;
-        let authorization = req.get("Authorization");
+        let authorization = req.get('Authorization');
         if (authorization) {
-            if (authorization.split("Bearer ").length === 2) {
-                token = authorization.split("Bearer ")[1];
+            if (authorization.split('Bearer ').length === 2) {
+                token = authorization.split('Bearer ')[1];
             } else {
-                req.authError = { message: "Header Authorization: Bearer <token> malformed or invalid.", id: "INVALID_TOKEN", status: 403 };
+                req.authError = { message: 'Header Authorization: Bearer <token> malformed or invalid.', id: 'INVALID_TOKEN', status: 403 };
                 req.authorization = {};
                 return next();
             }
@@ -77,7 +77,7 @@ function tokenData() {
         }
         
         if (!token) {
-            req.authError = { message: "No token found in 'Authorization: Bearer <Token>' in header or in 'body: { token }'.", id: "NO_TOKEN", status: 403 };
+            req.authError = { message: 'No token found in \'Authorization: Bearer <Token>\' in header or in \'body: { token }\'.', id: 'NO_TOKEN', status: 403 };
             req.authorization = {};
             return next();
         }
@@ -87,14 +87,14 @@ function tokenData() {
             req.authorization = {
                 username: decoded.username,
                 admin: decoded.admin
-            }
+            };
             return next();
         }).catch(err => {
-            req.authError = { message: err.message, id: "TOKEN_ERROR", status: 403 };
+            req.authError = { message: err.message, id: 'TOKEN_ERROR', status: 403 };
             req.authorization = {};
             return next();
         });
-    }
+    };
 }
 
 module.exports = {
