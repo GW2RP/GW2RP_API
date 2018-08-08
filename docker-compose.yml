@@ -2,7 +2,7 @@ version: "2"
 
 services:
    db:
-     image: mongodb
+     image: mongo
      volumes:
        - db_data:/data
      restart: always

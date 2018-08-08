@@ -10,4 +10,4 @@ RUN npm install --production
 
 COPY ./ ./
 
-RUN npm start
+RUN SET NODE_ENV=production && npm start
