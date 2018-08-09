@@ -9,13 +9,11 @@ module.exports = ({ auth }) => {
     const router = express.Router();
 
     router.get('/aujourdhui', (req, res, next) => {
-        Day.getDay(new Date()).then(date => {
+        Day.getDay(new Date()).then(today => {
             return res.json({
                 success: true,
                 message: 'Informations about today.',
-                today: {
-                    date,
-                }
+                today
             });
         }).catch(next);
     });

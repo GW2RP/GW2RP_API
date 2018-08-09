@@ -6,8 +6,9 @@ function getDayInfo(today = new Date()) {
         const offset = bisex && 1;
 
         const date = {
-            irl: new Date(),
+            irl: today,
             day_of_year: day,
+            year: today.getFullYear() - 687,
         };
         if (day < 90 + offset) {
             date.day = day;
