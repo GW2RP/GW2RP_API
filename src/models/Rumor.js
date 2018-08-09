@@ -31,7 +31,6 @@ const RumorSchema = new Schema({
             type: Number,
             required: 'Location coordinates shall have y value.'
         },
-        required: 'Location shall have coordinates.'
     },
     description: {
         type: String,
@@ -45,5 +44,7 @@ const RumorSchema = new Schema({
         type: String
     }
 });
+
+RumorSchema.index({ title: 'text' });
 
 module.exports = mongoose.model('Rumor', RumorSchema);

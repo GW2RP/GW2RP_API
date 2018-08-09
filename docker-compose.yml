@@ -12,8 +12,6 @@ services:
      depends_on:
        - db
      build: .
-     expose:
-       - 80
      restart: always
      environment:
        VIRTUAL_HOST: api.gw2rp-tools.ovh

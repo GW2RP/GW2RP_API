@@ -10,4 +10,5 @@ module.exports = Joi.object().keys({
     last_connect: Joi.forbidden(),
     admin: Joi.forbidden(),
     validation_token: Joi.forbidden(),
+    ower: Joi.forbidden(),
 });
