@@ -40,12 +40,63 @@ function getDayInfo(today = new Date()) {
     });
 }
 
+/**
+ * Convert the IRL day to IG date.
+ * @param {Date} day 
+ */
 function getDay(day = new Date()) {
     return getDayInfo(day).then(dayInfos => {
-        // Get events for today.
-        
-        // Get locations open today.
+        return {
+            date: dayInfos,
+        };
+    });
+}
 
+/**
+ * Convert an ingame day to an IRL date.
+ * @param {Object} date
+ * @param {Number} date.day Day to convert.
+ * @param {Number} date.season Season to convert.
+ * @param {Number} date.year Year to convert.
+ */
+function ig2irl(date) {
+    return Promise.resolve().then(() => {
+        const year = date.year + 687;
+        const bisex = year % 4 === 0;
+        const offset = bisex && -1;
+
+        let dayOfYear = 0;
+        switch (date.season) {
+            case 1:
+                dayOfYear = date.day;
+                break;
+            case 2:
+                dayOfYear = 90 + date.day;
+                break;
+            case 3:
+                dayOfYear = 180 + offset + date.day;
+                break;
+            case 4:
+                dayOfYear = 270 + offset + date.day;
+                break;
+            default:
+                throw { message: "Season must be between 1 and 4.", id: "INVALID_SEASON", status: 400 };
+        }
+
+        const converted = new Date();
+        converted.setFullYear(year);
+        
+        return converted;
+    });
+}
+
+/**
+ * Get info about the current day (IG date) and today's activities.
+ */
+function getToday() {
+    return getDayInfo(day).then(dayInfos => {
+        // Get events for today.
+        // Get locations open today.
         return {
             date: dayInfos,
             events: [],
@@ -57,4 +108,6 @@ function getDay(day = new Date()) {
 module.exports = {
     getDayInfo,
     getDay,
+    getToday,
+    ig2irl,
 };
