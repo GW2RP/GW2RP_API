@@ -29,14 +29,14 @@ module.exports = ({ auth }) => {
             Day.getDay(date).then(day => {
                 return res.json({
                     success: true,
-                    message: "Day converted to ingame.",
+                    message: 'Day converted to ingame.',
                     day,
                 });
             }).catch(next);
         } catch (e) {
             return res.status(400).json({
                 success: false,
-                message: "Date could not be parsed.",
+                message: 'Date could not be parsed.',
             });
         }
     });
@@ -48,17 +48,25 @@ module.exports = ({ auth }) => {
             const year = parseInt(req.params.year);
 
             Day.ig2irl({ day, season, year }).then(converted => {
-                console.log(converted);
                 return res.json({
                     success: true,
-                    message: "Ingame date converted to irl.",
-                    day: converted,
+                    message:'Ingame date converted to irl.',
+                    day: {
+                        date: {
+                            irl: converted,
+                            day,
+                            year,
+                            season: {
+                                code: season,
+                            },
+                        },
+                    },
                 });
             }).catch(next);
         } catch (e) {
             return res.status(400).json({
                 success: false,
-                message: "Date could not be parsed.",
+                message: 'Date could not be parsed.',
             });
         }
     });

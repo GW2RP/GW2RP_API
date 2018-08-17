@@ -3,7 +3,7 @@ function getDayInfo(today = new Date()) {
         const day = Math.ceil((today - new Date(today.getFullYear(), 0, 1)) / 86400000);
 
         const bisex = today.getFullYear() % 4 === 0;
-        const offset = bisex && 1;
+        const offset = bisex ? 1 : 0;
 
         const date = {
             irl: today,
@@ -40,17 +40,7 @@ function getDayInfo(today = new Date()) {
     });
 }
 
-/**
- * Convert the IRL day to IG date.
- * @param {Date} day 
- */
-function getDay(day = new Date()) {
-    return getDayInfo(day).then(dayInfos => {
-        return {
-            date: dayInfos,
-        };
-    });
-}
+
 
 /**
  * Convert an ingame day to an IRL date.
@@ -63,7 +53,9 @@ function ig2irl(date) {
     return Promise.resolve().then(() => {
         const year = date.year + 687;
         const bisex = year % 4 === 0;
-        const offset = bisex && -1;
+        const offset = bisex ? -1 : 0;
+
+        console.log(offset);
 
         let dayOfYear = 0;
         switch (date.season) {
@@ -80,23 +72,37 @@ function ig2irl(date) {
                 dayOfYear = 270 + offset + date.day;
                 break;
             default:
-                throw { message: "Season must be between 1 and 4.", id: "INVALID_SEASON", status: 400 };
+                throw {
+                    message: 'Season must be between 1 and 4.',
+                    id: 'INVALID_SEASON',
+                    status: 400
+                };
         }
 
-        const converted = new Date();
-        converted.setFullYear(year);
-        
+        const converted = new Date(year, 0, dayOfYear + 1);
+
         return converted;
     });
 }
 
 /**
- * Get info about the current day (IG date) and today's activities.
+ * Convert the IRL day to IG date.
+ * @param {Date} day 
  */
-function getToday() {
+function irl2ig(day = new Date()) {
     return getDayInfo(day).then(dayInfos => {
-        // Get events for today.
-        // Get locations open today.
+        return {
+            date: dayInfos,
+        };
+    });
+}
+
+/**
+ * Convert the IRL day to IG date.
+ * @param {Date} day 
+ */
+function getDay(day = new Date()) {
+    return getDayInfo(day).then(dayInfos => {
         return {
             date: dayInfos,
             events: [],
@@ -105,9 +111,17 @@ function getToday() {
     });
 }
 
+/**
+ * Get info about the current day (IG date) and today's activities.
+ */
+function getToday() {
+    return getDay(new Date());
+}
+
 module.exports = {
     getDayInfo,
     getDay,
     getToday,
     ig2irl,
+    irl2ig,
 };
