@@ -55,8 +55,6 @@ function ig2irl(date) {
         const bisex = year % 4 === 0;
         const offset = bisex ? -1 : 0;
 
-        console.log(offset);
-
         let dayOfYear = 0;
         switch (date.season) {
             case 1:
@@ -79,7 +77,7 @@ function ig2irl(date) {
                 };
         }
 
-        const converted = new Date(year, 0, dayOfYear + 1);
+        const converted = new Date(year, 0, dayOfYear);
 
         return converted;
     });
