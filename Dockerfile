@@ -8,4 +8,6 @@ RUN npm install --production
 
 COPY ./ ./
 
-RUN export NODE_ENV=production && npm start
+EXPOSE 80
+
+CMD export NODE_ENV=production && npm start

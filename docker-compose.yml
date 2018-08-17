@@ -1,26 +1,27 @@
 version: "2"
 
 services:
-   db:
-     image: mongo
-     volumes:
-       - db_data:/data
-     restart: always
-     container_name: gw2rp_db
+  db:
+    image: mongo
+    volumes:
+      - db_data:/data
+    restart: always
+    expose:
+      - "27017"
 
-   wordpress:
-     depends_on:
-       - db
-     build: .
-     restart: always
-     environment:
-       VIRTUAL_HOST: api.gw2rp-tools.ovh
-       MONGO_URL: mongodb://db:27017/gw2rp
-       PORT: 80
-     container_name: gw2rp_api
+  api:
+    depends_on:
+      - db
+    build: .
+    env_file: .env
+    restart: always
+    environment:
+      VIRTUAL_HOST: api.nakasar.me
+      MONGO_URL: mongodb://db:27017/gw2rp
+      PORT: 80
 
 volumes:
-    db_data:
+  db_data:
 
 networks:
   default:
