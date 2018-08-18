@@ -54,6 +54,16 @@ const EventSchema = new Schema({
     opening_hours: {
         type: Schema.Types.Mixed,
         default: {},
+    },
+    participants: {
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        participation: {
+            type: String,
+            enum: ["YES", "NO", "MAYBE"]
+        }
     }
 });
 
