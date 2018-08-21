@@ -10,14 +10,9 @@ module.exports = Joi.object().keys({
         x: Joi.number().required(),
         y: Joi.number().required()
     }).required(),
-    difficulty: Joi.string().lowercase().valid(['peaceful', 'easy', 'normal', 'difficult', 'hardcore']).required(),
     contact: Joi.string().regex(/^[a-zA-Z ]{1,}\.\d{4}$/, 'gw2account').required(),
     site: Joi.string().allow(''),
     types: Joi.array().required(),
     icon: Joi.string().required(),
-    dates: Joi.object().keys({
-        start: Joi.date().required(),
-        end: Joi.date().required(),
-    }).required(),
-    participants: Joi.forbidden(),
+    opening_hours: Joi.object(),
 });

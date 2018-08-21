@@ -16,7 +16,7 @@ function signIn(username, password) {
         });
     }).then(user => {
         if (!user) {
-            return {
+            throw {
                 message: 'There is no user with this username.',
                 id: 'NO_USER',
                 status: 403
@@ -24,7 +24,7 @@ function signIn(username, password) {
         }
 
         if (!bcrypt.compareSync(password, user.password)) {
-            return {
+            throw {
                 message: 'Wrong credential.',
                 id: 'WRONG_CREDENTIALS',
                 status: 403

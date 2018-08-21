@@ -36,6 +36,12 @@ const EventSchema = new Schema({
         type: String,
         required: 'Event shall have a description.'
     },
+    difficulty: {
+        type: String,
+        enum: ['peaceful', 'easy', 'normal', 'difficult', 'hardcore'],
+        lowercase: true,
+        required: 'An Event should have a difficulty.',
+    },
     contact: {
         type: String,
         required: 'Event shall have a contact.'
@@ -51,20 +57,31 @@ const EventSchema = new Schema({
         type: String,
         default: 'generic'
     },
-    opening_hours: {
-        type: Schema.Types.Mixed,
-        default: {},
+    dates: {
+        _id: false,
+        start: {
+            _id: false,
+            type: Date,
+            required: 'Event should have a start date.',
+        },
+        end: {
+            _id: false,
+            type: Date,
+            required: 'Event should have an end date.',
+        }
     },
-    participants: {
+    participants: [{
+        _id: false,
         user: {
             type: Schema.Types.ObjectId,
             ref: 'User'
         },
         participation: {
             type: String,
-            enum: ["YES", "NO", "MAYBE"]
+            enum: ['YES', 'NO', 'MAYBE'],
+            uppercase: true,
         }
-    }
+    }]
 });
 
 EventSchema.index({ title: 'text' });

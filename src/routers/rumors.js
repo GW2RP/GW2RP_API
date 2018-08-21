@@ -9,8 +9,8 @@ module.exports = ({ auth }) => {
     const router = express.Router();
 
     router.get('/', (req, res, next) => {
-        const { username, title } = req.query;
-        const search = { title, username };
+        const { user, title } = req.query;
+        const search = { title, user };
 
         Rumors.getAll(search).then(rumors => { 
             return res.json({
@@ -22,8 +22,8 @@ module.exports = ({ auth }) => {
     });
 
     router.post('/search', (req, res, next) => {
-        const { username, title } = req.body;
-        const search = { title, username };
+        const { user, title } = req.body;
+        const search = { title, user };
 
         Rumors.getAll(search).then(rumors => { 
             return res.json({

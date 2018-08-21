@@ -1,19 +1,20 @@
 const Joi = require('joi');
 
 const User = require('../models/User');
-const Rumor = require('../models/Rumor');
-const RumorValidator = require('../validators/RumorValidator');
+const Character = require('../models/Character');
+
+const CharacterValidator = require('../validators/CharacterValidator');
 
 function getAll(search) {
-    return Promise.resolve().then(() => {
+    return Promise.resolve().then(async () => {
         const query = {};
-        if (search.title) {
+        if (search.name) {
             query['$text'] = {
-                $search: search.title
+                $search: search.name
             };
         }
         if (search.user) {
-            const user = User.findOne({ username: search.user }, '_id');
+            const user = await User.findOne({ username: search.user }, '_id');
             if (!user) {
                 throw {
                     id: 'USER_NOT_FOUND',
@@ -23,21 +24,24 @@ function getAll(search) {
             }
             query.owner = user._id;
         }
+        if (search.tags) {
+            query.tags = { $all: search.tags };
+        }
 
-        return Rumor.find(query, '-__v').populate('owner', 'username -_id');
+        return Character.find(query, '-__v -participants').populate('owner', 'username gw2_account -_id');
     });
 }
 
-function create(rumor, authorization) {
+function create(character, authorization) {
     return Promise.resolve().then(() => {
-        if (!rumor) {
+        if (!character) {
             throw {
-                message: 'No rumor to create.',
-                id: 'NO_RUMOR'
+                message: 'No character to create.',
+                id: 'NO_CHARACTER'
             };
         }
 
-        return Joi.validate(rumor, RumorValidator).catch(error => {
+        return Joi.validate(character, CharacterValidator).catch(error => {
             const details = error.details ? error.details.map(d => {
                 return {
                     message: d.message,
@@ -47,13 +51,13 @@ function create(rumor, authorization) {
 
             throw {
                 status: 400,
-                message: 'Given rumor is invalid.',
-                id: 'INVALID_RUMOR',
+                message: 'Given character is invalid.',
+                id: 'INVALID_CHARACTER',
                 details
             };
         });
     }).then(validated => {
-        const newRumor = new Rumor(validated);
+        const newCharacter = new Character(validated);
 
         // Find owner.
         return User
@@ -63,35 +67,35 @@ function create(rumor, authorization) {
                 if (!user) {
                     throw {
                         id: 'USER_NOT_FOUND',
-                        message: 'Bearer of the token is not allowed to create rumors.',
+                        message: 'Bearer of the token is not allowed to create characters.',
                         status: 403
                     };
                 }
 
-                newRumor.owner = user._id;
+                newCharacter.owner = user._id;
 
-                return newRumor.save();
-            }).then(rumor => {
-                return Rumor.findById(rumor._id, '-__v').populate('owner', '-_id username');
+                return newCharacter.save();
+            }).then(character => {
+                return Character.findById(character._id, '-__v').populate('owner', '-_id username');
             });
     });
 }
 
 function getOne(id) {
-    return Rumor.findById(id, '-__v').populate('owner', 'username -_id').then(rumor => {
-        if (!rumor) {
+    return Character.findById(id, '-__v').populate('owner', 'username gw2_account -_id').then(character => {
+        if (!character) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found.',
+                id: 'CHARACTER_NOT_FOUND',
+                message: 'Character was not found.',
                 status: 404
             };
         }
 
-        return rumor;
-    }).catch(err => {
+        return character;
+    }).catch(() => {
         throw {
-            id: 'RUMOR_NOT_FOUND',
-            message: 'Rumor was not found.',
+            id: 'CHARACTER_NOT_FOUND',
+            message: 'Character was not found.',
             status: 404
         };
     });
@@ -106,7 +110,7 @@ function deleteOne(id, authorization) {
             if (!user) {
                 throw {
                     id: 'USER_NOT_FOUND',
-                    message: 'Bearer of the token is not allowed to delete rumors.',
+                    message: 'Bearer of the token is not allowed to delete characters.',
                     status: 403
                 };
             }
@@ -114,11 +118,11 @@ function deleteOne(id, authorization) {
             query.owner = user._id;
         }
 
-        return Rumor.deleteOne(query).then(({ n, ok }) => {
+        return Character.deleteOne(query).then(({ n }) => {
             if (n === 0) {
                 throw {
-                    id: 'RUMOR_NOT_FOUND',
-                    message: 'Rumor was not found, or the user is not the owner of this rumor.',
+                    id: 'CHARACTER_NOT_FOUND',
+                    message: 'Character was not found, or the user is not the owner of this character.',
                     status: 404
                 };
             }
@@ -128,8 +132,8 @@ function deleteOne(id, authorization) {
     }).catch(err => {
         if (!err.id) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found.',
+                id: 'CHARACTER_NOT_FOUND',
+                message: 'Character was not found.',
                 status: 404
             };
         }
@@ -138,16 +142,16 @@ function deleteOne(id, authorization) {
     });
 }
 
-function updateOne(id, rumor, authorization) {
+function updateOne(id, character, authorization) {
     return Promise.resolve().then(() => {
-        if (!rumor) {
+        if (!character) {
             throw {
-                message: 'No rumor to create.',
-                id: 'NO_RUMOR'
+                message: 'No character to create.',
+                id: 'NO_CHARACTER'
             };
         }
 
-        return Joi.validate(rumor, RumorValidator).catch(error => {
+        return Joi.validate(character, CharacterValidator).catch(error => {
             const details = error.details ? error.details.map(d => {
                 return {
                     message: d.message,
@@ -157,8 +161,8 @@ function updateOne(id, rumor, authorization) {
 
             throw {
                 status: 400,
-                message: 'Given rumor is invalid.',
-                id: 'INVALID_RUMOR',
+                message: 'Given character is invalid.',
+                id: 'INVALID_CHARACTER',
                 details
             };
         });
@@ -170,7 +174,7 @@ function updateOne(id, rumor, authorization) {
             if (!user) {
                 throw {
                     id: 'USER_NOT_FOUND',
-                    message: 'Bearer of the token is not allowed to delete rumors.',
+                    message: 'Bearer of the token is not allowed to delete characters.',
                     status: 403
                 };
             }
@@ -178,30 +182,31 @@ function updateOne(id, rumor, authorization) {
             query.owner = user._id;
         }
 
-        const rumor = await Rumor.findOne(query);
-        if (!rumor) {
+        const character = await Character.findOne(query);
+        if (!character) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found, or the user is not the owner of this rumor.',
+                id: 'CHARACTER_NOT_FOUND',
+                message: 'Character was not found, or the user is not the owner of this character.',
                 status: 404
             };
         }
 
-        rumor.title = validated.title;
-        rumor.description = validated.description;
-        rumor.site = validated.site;
-        rumor.last_update = new Date();
-        rumor.contact = validated.contact;
-        rumor.coordinates = validated.coordinates;
+        character.name = validated.name;
+        character.description = validated.description;
+        character.appearance = validated.appearance;
+        character.history = validated.history;
+        character.sheet = validated.sheet;
+        character.last_update = new Date();
+        character.tags = validated.tags;
 
-        return rumor.save();
-    }).then(rumor => {
-        return Rumor.findById(rumor._id, '-__v').populate('owner', 'username -_id');
+        return character.save();
+    }).then(character => {
+        return Character.findById(character._id, '-__v').populate('owner', 'username gw2_account -_id');
     });
 }
 
 function deleteAll() {
-    return Rumor.deleteMany({}).then(() => {
+    return Character.deleteMany({}).then(() => {
         return true;
     });
 }

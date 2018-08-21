@@ -1,8 +1,9 @@
 const Joi = require('joi');
 
 const User = require('../models/User');
-const Rumor = require('../models/Rumor');
-const RumorValidator = require('../validators/RumorValidator');
+const Location = require('../models/Location');
+
+const LocationValidator = require('../validators/LocationValidator');
 
 function getAll(search) {
     return Promise.resolve().then(() => {
@@ -24,20 +25,20 @@ function getAll(search) {
             query.owner = user._id;
         }
 
-        return Rumor.find(query, '-__v').populate('owner', 'username -_id');
+        return Location.find(query, '-__v -participants').populate('owner', 'username -_id');
     });
 }
 
-function create(rumor, authorization) {
+function create(location, authorization) {
     return Promise.resolve().then(() => {
-        if (!rumor) {
+        if (!location) {
             throw {
-                message: 'No rumor to create.',
-                id: 'NO_RUMOR'
+                message: 'No location to create.',
+                id: 'NO_LOCATION'
             };
         }
 
-        return Joi.validate(rumor, RumorValidator).catch(error => {
+        return Joi.validate(location, LocationValidator).catch(error => {
             const details = error.details ? error.details.map(d => {
                 return {
                     message: d.message,
@@ -47,13 +48,13 @@ function create(rumor, authorization) {
 
             throw {
                 status: 400,
-                message: 'Given rumor is invalid.',
-                id: 'INVALID_RUMOR',
+                message: 'Given location is invalid.',
+                id: 'INVALID_LOCATION',
                 details
             };
         });
     }).then(validated => {
-        const newRumor = new Rumor(validated);
+        const newLocation = new Location(validated);
 
         // Find owner.
         return User
@@ -63,35 +64,35 @@ function create(rumor, authorization) {
                 if (!user) {
                     throw {
                         id: 'USER_NOT_FOUND',
-                        message: 'Bearer of the token is not allowed to create rumors.',
+                        message: 'Bearer of the token is not allowed to create locations.',
                         status: 403
                     };
                 }
 
-                newRumor.owner = user._id;
+                newLocation.owner = user._id;
 
-                return newRumor.save();
-            }).then(rumor => {
-                return Rumor.findById(rumor._id, '-__v').populate('owner', '-_id username');
+                return newLocation.save();
+            }).then(location => {
+                return Location.findById(location._id, '-__v').populate('owner', '-_id username');
             });
     });
 }
 
 function getOne(id) {
-    return Rumor.findById(id, '-__v').populate('owner', 'username -_id').then(rumor => {
-        if (!rumor) {
+    return Location.findById(id, '-__v').populate('owner', 'username -_id').then(location => {
+        if (!location) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found.',
+                id: 'LOCATION_NOT_FOUND',
+                message: 'Location was not found.',
                 status: 404
             };
         }
 
-        return rumor;
-    }).catch(err => {
+        return location;
+    }).catch(() => {
         throw {
-            id: 'RUMOR_NOT_FOUND',
-            message: 'Rumor was not found.',
+            id: 'LOCATION_NOT_FOUND',
+            message: 'Location was not found.',
             status: 404
         };
     });
@@ -106,7 +107,7 @@ function deleteOne(id, authorization) {
             if (!user) {
                 throw {
                     id: 'USER_NOT_FOUND',
-                    message: 'Bearer of the token is not allowed to delete rumors.',
+                    message: 'Bearer of the token is not allowed to delete locations.',
                     status: 403
                 };
             }
@@ -114,11 +115,11 @@ function deleteOne(id, authorization) {
             query.owner = user._id;
         }
 
-        return Rumor.deleteOne(query).then(({ n, ok }) => {
+        return Location.deleteOne(query).then(({ n }) => {
             if (n === 0) {
                 throw {
-                    id: 'RUMOR_NOT_FOUND',
-                    message: 'Rumor was not found, or the user is not the owner of this rumor.',
+                    id: 'LOCATION_NOT_FOUND',
+                    message: 'Location was not found, or the user is not the owner of this location.',
                     status: 404
                 };
             }
@@ -128,8 +129,8 @@ function deleteOne(id, authorization) {
     }).catch(err => {
         if (!err.id) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found.',
+                id: 'LOCATION_NOT_FOUND',
+                message: 'Location was not found.',
                 status: 404
             };
         }
@@ -138,16 +139,16 @@ function deleteOne(id, authorization) {
     });
 }
 
-function updateOne(id, rumor, authorization) {
+function updateOne(id, location, authorization) {
     return Promise.resolve().then(() => {
-        if (!rumor) {
+        if (!location) {
             throw {
-                message: 'No rumor to create.',
-                id: 'NO_RUMOR'
+                message: 'No location to create.',
+                id: 'NO_LOCATION'
             };
         }
 
-        return Joi.validate(rumor, RumorValidator).catch(error => {
+        return Joi.validate(location, LocationValidator).catch(error => {
             const details = error.details ? error.details.map(d => {
                 return {
                     message: d.message,
@@ -157,8 +158,8 @@ function updateOne(id, rumor, authorization) {
 
             throw {
                 status: 400,
-                message: 'Given rumor is invalid.',
-                id: 'INVALID_RUMOR',
+                message: 'Given location is invalid.',
+                id: 'INVALID_LOCATION',
                 details
             };
         });
@@ -170,7 +171,7 @@ function updateOne(id, rumor, authorization) {
             if (!user) {
                 throw {
                     id: 'USER_NOT_FOUND',
-                    message: 'Bearer of the token is not allowed to delete rumors.',
+                    message: 'Bearer of the token is not allowed to delete locations.',
                     status: 403
                 };
             }
@@ -178,30 +179,34 @@ function updateOne(id, rumor, authorization) {
             query.owner = user._id;
         }
 
-        const rumor = await Rumor.findOne(query);
-        if (!rumor) {
+        const location = await Location.findOne(query);
+        if (!location) {
             throw {
-                id: 'RUMOR_NOT_FOUND',
-                message: 'Rumor was not found, or the user is not the owner of this rumor.',
+                id: 'LOCATION_NOT_FOUND',
+                message: 'Location was not found, or the user is not the owner of this location.',
                 status: 404
             };
         }
 
-        rumor.title = validated.title;
-        rumor.description = validated.description;
-        rumor.site = validated.site;
-        rumor.last_update = new Date();
-        rumor.contact = validated.contact;
-        rumor.coordinates = validated.coordinates;
+        location.title = validated.title;
+        location.description = validated.description;
+        location.site = validated.site;
+        location.last_update = new Date();
+        location.contact = validated.contact;
+        location.coordinates = validated.coordinates;
+        location.types = validated.types;
+        location.icon = validated.icon;
+        location.opening_hours = validated.opening_hours;
+        location.markModified('opening_hours');
 
-        return rumor.save();
-    }).then(rumor => {
-        return Rumor.findById(rumor._id, '-__v').populate('owner', 'username -_id');
+        return location.save();
+    }).then(location => {
+        return Location.findById(location._id, '-__v').populate('owner', 'username -_id');
     });
 }
 
 function deleteAll() {
-    return Rumor.deleteMany({}).then(() => {
+    return Location.deleteMany({}).then(() => {
         return true;
     });
 }
