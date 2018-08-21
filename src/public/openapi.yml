@@ -16,6 +16,11 @@ tags:
   - name: admin
   - name: users
   - name: locations
+  - name: events
+  - name: rumors
+  - name: characters
+  - name: tools
+  - name: others
 
 paths:
   /auth:
@@ -28,59 +33,39 @@ paths:
       description: Create a new user account.
       tags:
         - authentication
-    
 
-  /users:
-    get:
-      description: Get all users.
-      tags:
-        - users
-      summary: Get users.
-      operationId: getUsers
-    delete:
-      description: Delete all users.
-      tags:
-        - users
-        - admin
-  /users/search:
-    post:
-      description: Perform a complex search on users.
-      tags:
-        - users
-  /users/{username}:
-    get:
-      description: Get a user by username.
-      summary: Get user.
-      operationId: getUser
-      tags:
-        - users
-    delete:
-      tags:
-        - users
-    put:
-      tags:
-        - users
-  
-  /locations:
-    get:
-      description: Get all locations.
-      summary: Get locations
-      operationId: getLocations
-      tags:
-        - locations
-    post:
-      tags:
-        - locations
-    delete:
-      tags:
-        - locations
-  /locations/{id}:
-    get:
-      tags:
-        - locations
-    put:
-      tags:
-        - locations
-    delete:
-      tags:
-        - locations
+components:
+  schemas:
+    BasicResponse:
+      type: object
+      required:
+      - success
+      - message
+      properties:
+        message:
+          type: string
+        success:
+          type: boolean
+          example: true
+    ErrorResponse:
+      type: object
+      required:
+      - success
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+          - message
+          - id
+          properties:
+            message:
+              type: string
+            id:
+              type: string
+    User:
+    Location:
+    Event:
+    Rumor:
