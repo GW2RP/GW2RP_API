@@ -81,6 +81,26 @@ module.exports = ({ auth }) => {
         }).catch(next);
     });
 
+    router.get('/:username/subscriptions', auth.hasToken(), (req, res, next) => {
+        Users.getSubscriptions(req.params.username, req.authorization).then(user => {
+            return res.json({
+                success: true,
+                message: 'User object with subscriptions.',
+                user
+            });
+        }).catch(next);
+    });
+
+    router.put('/:username/subscriptions', auth.hasToken(), (req, res, next) => {
+        Users.updateSubscriptions(req.params.username, req.body.subscriptions, req.authorization).then(subscriptions => {
+            return res.json({
+                success: true,
+                message: 'Subscriptions updated.',
+                subscriptions,
+            });
+        }).catch(next);
+    });
+
     router.use('*', (req, res, next) => {
         return res.status(404).json({
             success: 'false',

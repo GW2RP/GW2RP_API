@@ -41,7 +41,15 @@ const UserSchema = new Schema({
     },
     validation_token: {
         type: String,
-    }
+    },
+    subscriptions: {
+        email: {
+            expirations: {
+                type: Boolean,
+                default: false,
+            },
+        },
+    },
 });
 
 UserSchema.index({ username: 'text' }, { unique: true });

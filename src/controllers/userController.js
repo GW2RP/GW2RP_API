@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
 const UserValidator = require('../validators/UserValidator');
+const UserSubscriptionsValidator = require('../validators/UserSubscriptionsValidator');
 
 const mailer = require('../utils/mailer');
 
@@ -192,7 +193,6 @@ function getOne(username) {
 
 function deleteOne(username, authorization) {
     return Promise.resolve().then(() => {
-        console.log(authorization);
         if (!authorization || !(authorization.admin || (authorization.username.toLowerCase() === username.toLowerCase()))) {
             throw {
                 message: 'You cannot delete another acount than yours.',
@@ -414,6 +414,82 @@ function validateEmail(username, token) {
     });
 }
 
+function getSubscriptions(username, authorization) {
+    return Promise.resolve().then(() => {
+        if (!authorization || !(authorization.username.toLowerCase() === username.toLowerCase())) {
+            throw {
+                message: 'You cannot get the subscription of another account.',
+                id: 'NOT_YOUR_ACCOUNT',
+                status: '403',
+            };
+        }
+
+        return User.findOne({ username }, '-_id -password -__v').then(user => {
+            if (!user) {
+                throw {
+                    message: 'User not found.',
+                    id: 'USER_NOT_FOUND',
+                    status: 404,
+                };
+            }
+            return user;
+        });
+    });
+}
+
+function updateSubscriptions(username, subscriptions, authorization) {
+    return Promise.resolve().then(() => {
+        if (!subscriptions) {
+            throw {
+                message: 'Missing subscriptions in body.',
+                id: 'INVALID_SUBSCRIPTIONS',
+                status: '400',
+            };
+        }
+
+        if (!authorization || !(authorization.username.toLowerCase() === username.toLowerCase())) {
+            throw {
+                message: 'You cannot edit the subscription of another account.',
+                id: 'NOT_YOUR_ACCOUNT',
+                status: '403',
+            };
+        }
+
+        return Joi.validate(subscriptions, UserSubscriptionsValidator).catch(error => {
+            const details = error.details ? error.details.map(d => {
+                return {
+                    message: d.message,
+                    id: d.path && d.path[0] ? d.path[0] : 'GENERIC'
+                };
+            }) : null;
+
+            throw {
+                status: 400,
+                message: 'Given subscriptions object is invalid.',
+                id: 'INVALID_SUBSCRIPTIONS',
+                details
+            };
+        });
+    }).then(validated => {
+        return User.findOne({ username }).then(user => {
+            if (!user) {
+                throw {
+                    message: 'User not found.',
+                    id: 'USER_NOT_FOUND',
+                    status: 404,
+                };
+            }
+            return user;
+        }).then(user => {
+            user.subscriptions = validated;
+
+            return user.save();
+        }).then(() => {
+            return validated;
+        });
+    });
+}
+
 module.exports = {
     signIn,
     verifyToken,
@@ -426,4 +502,6 @@ module.exports = {
     updateOne,
     sendValidationMail,
     validateEmail,
+    getSubscriptions,
+    updateSubscriptions,
 };
