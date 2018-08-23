@@ -14,5 +14,5 @@ module.exports = Joi.object().keys({
     site: Joi.string().allow(''),
     types: Joi.array().required(),
     icon: Joi.string().required(),
-    opening_hours: Joi.object(),
+    opening_hours: Joi.any(),
 });

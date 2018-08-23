@@ -85,6 +85,8 @@ const CharacterSchema = new Schema({
 
 CharacterSchema.index({
     name: 'text'
+}, {
+    unique: true
 });
 
 module.exports = mongoose.model('Character', CharacterSchema);

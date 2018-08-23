@@ -54,7 +54,7 @@ const LocationSchema = new Schema({
     opening_hours: {
         type: Schema.Types.Mixed,
         default: {},
-    }
+    },
 });
 
 LocationSchema.index({ title: 'text' });
