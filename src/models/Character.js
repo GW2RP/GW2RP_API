@@ -85,6 +85,10 @@ const CharacterSchema = new Schema({
 
 CharacterSchema.index({
     name: 'text'
+});
+
+CharacterSchema.index({
+    name: 1
 }, {
     unique: true
 });

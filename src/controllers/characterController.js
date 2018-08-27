@@ -28,7 +28,7 @@ function getAll(search) {
             query.tags = { $all: search.tags };
         }
 
-        return Character.find(query, '-__v -participants').populate('owner', 'username gw2_account -_id');
+        return Character.find(query, '-__v -sheet').populate('owner', 'username gw2_account -_id');
     });
 }
 
