@@ -35,7 +35,7 @@ function getAll(search) {
                 break;
         }
 
-        return Contract.find(query, '-__v').populate('owner', 'username -_id').populate('pretenders', 'username -_id');
+        return Contract.find(query, '-__v').populate('owner', 'username gw2_account -_id').populate('pretenders', 'username gw2_account -_id');
     });
 }
 
@@ -89,7 +89,7 @@ function create(contract, authorization) {
 }
 
 function getOne(id) {
-    return Contract.findById(id, '-__v').populate('owner', 'username -_id').populate('pretenders', 'username -_id').then(contract => {
+    return Contract.findById(id, '-__v').populate('owner', 'username gw2_account -_id').populate('pretenders', 'username gw2_account -_id').then(contract => {
         if (!contract) {
             throw {
                 id: 'CONTRACT_NOT_FOUND',
@@ -207,7 +207,7 @@ function updateOne(id, contract, authorization) {
 
         return contract.save();
     }).then(contract => {
-        return Contract.findById(contract._id, '-__v').populate('owner', 'username -_id');
+        return Contract.findById(contract._id, '-__v').populate('owner', 'username gw2_account -_id').populate('pretenders', 'username gw2_account -_id');
     });
 }
 
