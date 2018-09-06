@@ -44,6 +44,8 @@ module.exports = () => {
 
     router.use('/events', require('./routers/events')({ auth }));
 
+    router.use('/contracts', require('./routers/contracts')({ auth }));
+
     router.use('/', require('./routers/others')({ auth }));
 
     router.use((err, req, res, next) => {

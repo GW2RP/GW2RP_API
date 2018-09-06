@@ -81,6 +81,16 @@ module.exports = ({ auth }) => {
         }).catch(next);
     });
 
+    router.get('/:username/creations', (req, res, next) => {
+        Users.getCreations(req.params.username).then(creations => {
+            return res.json({
+                success: true,
+                message: `Creations of ${req.params.username}.`,
+                creations,
+            });
+        }).catch(next);
+    });
+
     router.get('/:username/subscriptions', auth.hasToken(), (req, res, next) => {
         Users.getSubscriptions(req.params.username, req.authorization).then(user => {
             return res.json({

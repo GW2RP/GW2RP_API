@@ -3,6 +3,11 @@ const Joi = require('joi');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
+const Contract = require('../models/Contract');
+const Location = require('../models/Location');
+const Rumor = require('../models/Rumor');
+const Event = require('../models/Event');
+const Character = require('../models/Character');
 const UserValidator = require('../validators/UserValidator');
 const UserSubscriptionsValidator = require('../validators/UserSubscriptionsValidator');
 
@@ -490,6 +495,32 @@ function updateSubscriptions(username, subscriptions, authorization) {
     });
 }
 
+function getCreations(username) {
+    return Promise.resolve().then(() => {
+        return User.findOne({
+            username,
+        });
+    }).then(user => {
+        if (!user) {
+            throw {
+                message: 'User not found.',
+                id: 'USER_NOT_FOUND',
+                status: 404,
+            };
+        }
+
+        return Promise.all([
+            Character.find({ owner: user._id }, '-__v').populate('owner', 'username -_id'),
+            Event.find({ owner: user._id }, '-__v').populate('owner', 'username -_id'),
+            Location.find({ owner: user._id }, '-__v').populate('owner', 'username -_id'),
+            Rumor.find({ owner: user._id }, '-__v').populate('owner', 'username -_id'),
+            Contract.find({ owner: user._id }, '-__v').populate('owner', 'username -_id').populate('pretenders', 'username -_id'),
+        ]);
+    }).then(([ characters, events, locations, rumors, contracts ]) => {
+        return { characters, events, locations, rumors, contracts };
+    })
+}
+
 module.exports = {
     signIn,
     verifyToken,
@@ -504,4 +535,5 @@ module.exports = {
     validateEmail,
     getSubscriptions,
     updateSubscriptions,
+    getCreations,
 };
