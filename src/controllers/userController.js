@@ -518,7 +518,7 @@ function getCreations(username) {
         ]);
     }).then(([ characters, events, locations, rumors, contracts ]) => {
         return { characters, events, locations, rumors, contracts };
-    })
+    });
 }
 
 module.exports = {

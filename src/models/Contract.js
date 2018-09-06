@@ -14,6 +14,11 @@ const ContractSchema = new Schema({
         type: Date,
         default: new Date()
     },
+    status: {
+        type: String,
+        enum: ['OPEN', 'CLOSED'],
+        default: 'OPEN',
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

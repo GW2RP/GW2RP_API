@@ -192,6 +192,7 @@ function updateOne(id, contract, authorization) {
         contract.site = validated.site;
         contract.last_update = new Date();
         contract.reward = validated.reward;
+        contract.status = validated.status;
 
         return contract.save();
     }).then(contract => {

@@ -10,4 +10,5 @@ module.exports = Joi.object().keys({
     site: Joi.string().allow(''),
     reward: Joi.string().required(),
     predenters: Joi.forbidden(),
+    status: Joi.string().default('OPEN').valid(['OPEN', 'CLOSED']),
 });
