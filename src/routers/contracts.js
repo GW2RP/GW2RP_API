@@ -9,8 +9,8 @@ module.exports = ({ auth }) => {
     const router = express.Router();
 
     router.get('/', (req, res, next) => {
-        const { user, title } = req.query;
-        const search = { title, user };
+        const { user, title, status } = req.query;
+        const search = { title, user, status };
 
         Contracts.getAll(search).then(contracts => { 
             return res.json({
@@ -22,8 +22,8 @@ module.exports = ({ auth }) => {
     });
 
     router.post('/search', (req, res, next) => {
-        const { user, title } = req.body;
-        const search = { title, user };
+        const { user, title, status } = req.body;
+        const search = { title, user, status };
 
         Contracts.getAll(search).then(contracts => { 
             return res.json({

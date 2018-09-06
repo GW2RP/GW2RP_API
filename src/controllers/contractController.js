@@ -23,6 +23,17 @@ function getAll(search) {
             }
             query.owner = user._id;
         }
+        switch (search.status) {
+            case 'ALL':
+                break;
+            case 'CLOSED':
+                query['status'] = 'CLOSED';
+                break;
+            case 'OPEN':
+            default:
+                query['status'] = 'OPEN';
+                break;
+        }
 
         return Contract.find(query, '-__v').populate('owner', 'username -_id').populate('pretenders', 'username -_id');
     });
