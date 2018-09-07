@@ -29,6 +29,14 @@ function signIn(username, password) {
             };
         }
 
+        if (user.status !== 'active') {
+            throw {
+                message: 'User is not active.',
+                id: 'USER_NOT_VALIDATED',
+                status: 403,
+            };
+        }
+
         if (!bcrypt.compareSync(password, user.password)) {
             throw {
                 message: 'Wrong credential.',
