@@ -18,6 +18,7 @@ module.exports = Joi.object().keys({
     dates: Joi.object().keys({
         start: Joi.date().required(),
         end: Joi.date().required(),
+        recursivity: Joi.string().uppercase().default('NONE').valid(['NONE', '1-WEEK', '2-WEEK', '3-WEEK', '4-WEEK']),
     }).required(),
     participants: Joi.forbidden(),
 });

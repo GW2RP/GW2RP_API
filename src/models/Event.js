@@ -68,6 +68,11 @@ const EventSchema = new Schema({
             _id: false,
             type: Date,
             required: 'Event should have an end date.',
+        },
+        recursivity: {
+            type: String,
+            enum: ['NONE', '1-WEEK', '2-WEEK', '3-WEEK', '4-WEEK'],
+            default: 'NONE',
         }
     },
     participants: [{

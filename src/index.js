@@ -26,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(require('./router')());
 
+require('./cron').init();
+
 app.listen(PORT, err => {
     if (err) {
         console.error('Could not start application server.');

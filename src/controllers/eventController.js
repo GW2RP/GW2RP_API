@@ -270,6 +270,46 @@ function participate(id, participation, authorization) {
     });
 }
 
+function purge() {
+    return Event.find({ 'dates.end': { '$lt': new Date() } }).then(async (events) => {
+
+        let eventsToRemove = events.filter(event => event.dates.recursivity === 'NONE').map(event => event._id);
+        await Event.remove({ '_id': { '$in': eventsToRemove } });
+        
+        let eventsToUpdate = events.filter(event => event.dates.recursivity !== 'NONE');
+        await Promise.all(eventsToUpdate.map(event => {
+            let start = new Date(event.dates.start);
+            let end = new Date(event.dates.end);
+            
+            switch (event.dates.recursivity) {
+                case '1-WEEK':
+                    start.setDate(start.getDate() + 7);
+                    end.setDate(end.getDate() + 7);
+                    break;
+                case '2-WEEK':
+                    start.setDate(start.getDate() + 14);
+                    end.setDate(end.getDate() + 14);
+                    break;
+                case '3-WEEK':
+                    start.setDate(start.getDate() + 21);
+                    end.setDate(end.getDate() + 21);
+                    break;
+                case '4-WEEK':
+                    start.setDate(start.getDate() + 28);
+                    end.setDate(end.getDate() + 28);
+                    break;
+            }
+
+            event.dates.start = start;
+            event.dates.end = end;
+
+            return event.save();
+        }));
+
+        return;
+    });
+}
+
 module.exports = {
     getAll,
     create,
@@ -278,4 +318,5 @@ module.exports = {
     deleteAll,
     updateOne,
     participate,
+    purge,
 };
