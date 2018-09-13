@@ -1,3 +1,5 @@
+const Event = require('../models/Event');
+
 function getDayInfo(today = new Date()) {
     return Promise.resolve().then(() => {
         const day = Math.ceil((today - new Date(today.getFullYear(), 0, 1)) / 86400000);
@@ -39,8 +41,6 @@ function getDayInfo(today = new Date()) {
         return date;
     });
 }
-
-
 
 /**
  * Convert an ingame day to an IRL date.
@@ -100,10 +100,21 @@ function irl2ig(day = new Date()) {
  * @param {Date} day 
  */
 function getDay(day = new Date()) {
-    return getDayInfo(day).then(dayInfos => {
+    return getDayInfo(day).then(async dayInfos => {
+        const start = new Date(day);
+        start.setHours(0);
+        start.setMinutes(0);
+        start.setSeconds(0);
+        const end = new Date(day);
+        end.setHours(23);
+        end.setMinutes(59);
+        end.setSeconds(59);
+
+        const events = await Event.find({ 'dates.start': { '$gt': start, '$lt': end } }, '-__v').populate('owner', '-_id username gw2_account').populate('participants.user', 'username -_id gw2_account');;
+
         return {
             date: dayInfos,
-            events: [],
+            events,
             locations: []
         };
     });
