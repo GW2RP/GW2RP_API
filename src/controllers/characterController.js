@@ -77,7 +77,17 @@ function create(character, authorization) {
                 return newCharacter.save();
             }).then(character => {
                 return Character.findById(character._id, '-__v').populate('owner', '-_id username');
-            });
+            }).catch(err => {
+                if (err.message.startsWith('E11000')) {
+                    throw {
+                        id: 'CHARACTER_NAME_USED',
+                        message: 'Character name already used.',
+                        status: 400,
+                    };
+                }
+                
+                throw err;
+            })
     });
 }
 
